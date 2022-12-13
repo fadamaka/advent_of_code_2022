@@ -4,12 +4,6 @@ try {
   const data = fs.readFileSync("data.txt", "utf8");
   const trees = data.split("\n");
   const ints = trees.map((a) => a.split("").map((c) => parseInt(c)));
-  console.log(
-    trees[0].length,
-    ints.length,
-    ints[0].length,
-    (ints.length + ints[0].length - 2) * 2
-  );
   let result = 0;
   for (let i = 1; i < 98; i++) {
     for (let j = 1; j < 98; j++) {

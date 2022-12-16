@@ -41,15 +41,3 @@ function calculateWorry(item, operation) {
 
   return worry % tests;
 }
-
-function primeFactors(n) {
-  let array = [];
-  let c = BigInt(2);
-  while (n > BigInt(1)) {
-    if (n % c == 0) {
-      array.push(c);
-      n /= c;
-    } else c++;
-  }
-  return array;
-}

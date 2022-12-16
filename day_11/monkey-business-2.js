@@ -1,6 +1,8 @@
 let monkeys = require("./monkeys.json");
 
 console.log(monkeys);
+let tests = BigInt(Object.entries(monkeys).reduce((a, m) => a * m[1].test, 1));
+console.log(tests);
 
 for (let m = 0; m < 8; m++) {
   let monkey = monkeys["monkey" + m];
@@ -15,8 +17,6 @@ for (let i = 0; i < 10000; i++) {
       let item = monkey.items.shift();
       monkey.inspects++;
       let worry = calculateWorry(item, monkey.operation);
-      console.log(j);
-      worry % monkey.test == 0 ? console.log(true) : console.log(false);
       let give = worry % monkey.test == 0 ? monkey.ifTrue : monkey.ifFalse;
       monkeys["monkey" + give].items.push(worry);
     }
@@ -38,5 +38,18 @@ function calculateWorry(item, operation) {
   } else {
     worry *= num;
   }
-  return worry;
+
+  return worry % tests;
+}
+
+function primeFactors(n) {
+  let array = [];
+  let c = BigInt(2);
+  while (n > BigInt(1)) {
+    if (n % c == 0) {
+      array.push(c);
+      n /= c;
+    } else c++;
+  }
+  return array;
 }

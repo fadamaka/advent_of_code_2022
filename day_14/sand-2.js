@@ -21,8 +21,8 @@ try {
     }
   });
 
-  for (let i = lowX; i <= highX; i++) {
-    for (let j = lowY; j <= highY; j++) {
+  for (let i = lowX - 500; i <= highX + 500; i++) {
+    for (let j = lowY; j <= highY + 2; j++) {
       map[j] = map[j] ? map[j] : [];
       map[j][i] = ".";
     }
@@ -37,12 +37,13 @@ try {
     }
   }
   map[0][500] = "+";
+  drawLine(highX + 500 + "," + (highY + 2), lowX - 500 + "," + (highY + 2));
   let sand = 0;
   while (dropSand()) {
     sand++;
   }
   drawMap();
-  console.log(sand);
+  console.log(sand + 1);
 } catch (err) {
   console.error(err);
 }
@@ -89,7 +90,7 @@ function dropSand() {
       x++;
     }
   }
-  if (!map[y + 1][x - 1] || !map[y + 1][x + 1]) {
+  if (!map[y + 1][x - 1] || !map[y + 1][x + 1] || (x === 500 && y === 0)) {
     return false;
   } else {
     map[y][x] = "O";

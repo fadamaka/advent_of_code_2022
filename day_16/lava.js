@@ -1,9 +1,13 @@
 const fs = require("fs");
+let valves = {};
+let relevantValves = [];
+let distanceMatrix = [];
+let valveRates = [];
 try {
   const data = fs.readFileSync("data.txt", "utf8");
   let rawData = data.split("\n");
 
-  let valves = Object.fromEntries(
+  valves = Object.fromEntries(
     rawData.map((e) => [
       e.match(/(Valve )[A-Z]{2}/)[0].split(" ")[1],
       {
@@ -12,82 +16,75 @@ try {
           e.split("to valve")[1].matchAll(/[A-Z]{2}/g),
           (m) => m[0]
         ),
-        open: false,
       },
     ])
   );
+  relevantValves = Object.entries(valves)
+    .filter((e) => e[1].rate)
+    .map((e) => e[0]);
 
-  console.log(valves);
+  relevantValves.push("AA");
+  relevantValves.sort();
 
-  let currentBest = { name: "KR", value: 0, time: 30, opportunityCost: 0 };
-  let time = 30;
-  let result = 0;
-  let prevName = "";
-  let infLoop = 0;
-  while (
-    time > 0 &&
-    Object.entries(valves).filter((o) => !o[1].open && o[1].rate > 0).length > 0
-  ) {
-    if (prevName === currentBest.name) {
-      infLoop++;
-    } else {
-      prevName = currentBest.name;
-      infLoop = 0;
+  for (i of relevantValves) {
+    distanceMatrix[i] = [];
+    for (j of relevantValves) {
+      distanceMatrix[i][j] = Math.min(...calculateDistance(i, j));
     }
-    if (infLoop > 2) {
-      break;
-    }
-    time = currentBest.time;
-    console.log(currentBest);
-    if (time < 30) {
-      result += currentBest.value;
-      valves[currentBest.name].open = true;
-      currentBest.value = 0;
-      currentBest.opportunityCost = 0;
-    }
-    console.log(valves);
-    findBestValue(valves, currentBest.name, [], currentBest.time, currentBest);
   }
-  console.log(currentBest);
-  console.log(result);
+
+  for (i of relevantValves) {
+    valveRates[i] = valves[i].rate;
+  }
+
+  console.log(Object.keys(valveRates).length);
+
+  console.log(Math.min(...calculateDistance("AA", "AA")));
+  let max = 0;
+  for (i of calculate("AA", [], 31, 0)) {
+    max = max < i ? i : max;
+  }
+  console.log(max);
 } catch (err) {
   console.error(err);
 }
 
-function findBestValue(valves, current, visited, time, currentBest) {
-  let currValve = valves[current];
-  visited.push(current);
-  time--;
-  let currValue = currValve.rate * time;
-  if (
-    currentBest.value * currentBest.opportunityCost <
-      currValue * calculateOpportunityCost(valves, current) &&
-    !currValve.open
-  ) {
-    currentBest.name = current;
-    currentBest.value = currValue;
-    currentBest.time = time;
-    currentBest.opportunityCost = calculateOpportunityCost(valves, current);
+function calculateDistance(from, to, visited = [], distance = 0) {
+  visited.push(from);
+  if (from === to) {
+    return [0];
   }
-  currValve.tunnels
-    .filter((t) => !visited.includes(t))
-    .forEach((element) => {
-      findBestValue(
-        valves,
-        element,
+  if (valves[from].tunnels.includes(to)) {
+    return [distance + 1];
+  }
+  return valves[from].tunnels
+    .filter((e) => !visited.includes(e))
+    .flatMap((e) =>
+      calculateDistance(
+        e,
+        to,
         JSON.parse(JSON.stringify(visited)),
-        time,
-        currentBest
-      );
-    });
+        distance + 1
+      )
+    );
 }
-function calculateOpportunityCost(valves, current) {
-  let currValve = valves[current];
-  let openableNeighbours = Object.entries(valves)
-    .filter((o) => currValve.tunnels.includes(o[0]))
-    .filter((o) => !o[1].open && o[1].rate > 0);
-  return (
-    openableNeighbours.length +
-    openableNeighbours.reduce((a, b) => a + b[1].rate, 1)
+
+function calculate(poz, opened, time, value) {
+  if (opened.length == Object.keys(valveRates).length) {
+    return [value];
+  }
+  if (time <= 0) {
+    return [value];
+  }
+  opened.push(poz);
+  time--;
+  value += valveRates[poz] * time;
+  let distances = distanceMatrix[poz];
+  let distKeys = Object.keys(distances).filter((e) => !opened.includes(e));
+  if (distKeys.length == 0) {
+    return [value];
+  }
+  return distKeys.flatMap((e) =>
+    calculate(e, JSON.parse(JSON.stringify(opened)), time - distances[e], value)
   );
 }

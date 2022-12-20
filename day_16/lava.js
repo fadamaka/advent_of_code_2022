@@ -36,10 +36,6 @@ try {
   for (i of relevantValves) {
     valveRates[i] = valves[i].rate;
   }
-
-  console.log(Object.keys(valveRates).length);
-
-  console.log(Math.min(...calculateDistance("AA", "AA")));
   let max = 0;
   for (i of calculate("AA", [], 31, 0)) {
     max = max < i ? i : max;

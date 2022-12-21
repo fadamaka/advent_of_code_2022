@@ -61,15 +61,7 @@ function checkSides(x, y, z) {
   return (
     6 -
     variations.reduce(
-      (a, b) =>
-        a +
-        (cubes[x + b[0]]
-          ? cubes[x + b[0]][y + b[1]]
-            ? cubes[x + b[0]][y + b[1]][z + b[2]]
-              ? cubes[x + b[0]][y + b[1]][z + b[2]]
-              : 0
-            : 0
-          : 0),
+      (a, b) => a + (cubes[x + b[0]]?.[y + b[1]]?.[z + b[2]] || 0),
       0
     )
   );

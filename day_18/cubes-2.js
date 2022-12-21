@@ -86,17 +86,3 @@ function checkSides(x, y, z) {
   }
   return 0;
 }
-
-for (let x = 0; x <= xMax + 4; x++) {
-  cubes[x] = [];
-  for (let y = 0; y <= yMax + 4; y++) {
-    cubes[x][y] = [];
-    for (let z = 0; z <= zMax + 2; z++) {
-      cubes[x][y][z] = {
-        value: 0,
-        faces: 0,
-        conn: new Set().add(x + "," + y + "," + z),
-      };
-    }
-  }
-}
